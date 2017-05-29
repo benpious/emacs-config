@@ -3,19 +3,20 @@
 (add-to-list 'package-archives
 	     '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
+
 ;; remove menu
 (menu-bar-mode -1)
 
 ;; Control-H to delete
 (define-key key-translation-map [?\C-h] [?\C-?])
 (global-set-key (kbd "M-h") 'backward-kill-word)
-(global-set-key (kbd "C-u") 'other-window)
+
+(global-set-key (kbd "C-o") 'other-window)
 
 (setq tab-width 2)
 
 ;; Paren mode
-(setq show-paren-mode 1)
-(setq show-paren-delay 0)
+(show-paren-mode 1)
 
 ;; Line numbers
 
@@ -34,6 +35,7 @@
 (set-face-attribute 'font-lock-keyword-face nil :foreground "#e8d186")
 (set-face-attribute 'font-lock-type-face nil :foreground "#edc544")
 (set-face-attribute 'default nil :background "#171919")
+(set-face-attribute 'region nil :background "#2db3d8")
 
 (require 'color)
 (let ((bg (face-attribute 'default :background)))
@@ -47,14 +49,41 @@
   )
 
 ;; Autocompletion
+(use-package company)
 (add-hook 'after-init-hook 'global-company-mode)
 
 ;; Rust (https://github.com/racer-rust/emacs-racer)
 (setq racer-rust-src-path "/Users/benpious/.multirust/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src/")
 (add-hook 'rust-mode-hook #'racer-mode)
 (add-hook 'racer-mode-hook #'eldoc-mode)
-(require 'rust-mode)
+(add-hook 'racer-mode-hook #'company-mode)
+(use-package rust-mode)
 (define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common)
 (setq company-tooltip-align-annotations t)
-  
+
 (put 'erase-buffer 'disabled nil)
+
+;; Flycheck
+
+(use-package flycheck
+	     :ensure t
+	     :init (global-flycheck-mode))
+(add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+
+;; Delete trailing whitespace
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+;; python
+(use-package elpy)
+(elpy-enable)
+(add-hook 'python-mode-hook 'jedi:setup)
+(setq jedi:complete-on-dot t)
+
+;; projects
+;; https://github.com/bbatsov/projectile
+(use-package projectile)
+(projectile-mode)
+
+;; swift-mode
+(use-package flycheck-swift
+  :init '(flycheck-swift-setup))
