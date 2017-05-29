@@ -3,7 +3,11 @@
 (add-to-list 'package-archives
 	     '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
-
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(require 'use-package)
+(setq use-package-always-ensure t)
 ;; remove menu
 (menu-bar-mode -1)
 
@@ -87,3 +91,12 @@
 ;; swift-mode
 (use-package flycheck-swift
   :init '(flycheck-swift-setup))
+
+(use-package magit
+  :init (progn
+	  (global-set-key (kbd "C-x g") 'magit-status)
+	  (info-initialize)
+	  (add-to-list 'Info-directory-list
+		       "~/.emacs.d/site-lisp/magit/Documentation")
+	  )
+  )
