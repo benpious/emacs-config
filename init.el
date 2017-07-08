@@ -78,6 +78,7 @@
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; python
+(setq company-global-modes '(not python-mode))
 (use-package elpy)
 (elpy-enable)
 (add-hook 'python-mode-hook 'jedi:setup)
