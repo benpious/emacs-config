@@ -92,9 +92,14 @@
 (setq jedi:complete-on-dot t)
 
 ;; projects
-;; https://github.com/bbatsov/projectile
+;; https://github.com/bbatsov/projectile (http://projectile.readthedocs.io/en/latest/)
 (use-package projectile)
 (projectile-mode)
+(define-key projectile-mode-map (kbd "C-c d") 'projectile-find-dir)
+(define-key projectile-mode-map (kbd "C-c o") 'projectile-find-file)
+(define-key projectile-mode-map (kbd "C-c f") 'projectile-grep)
+(define-key projectile-mode-map (kbd "C-c r") 'projectile-replace)
+(define-key projectile-mode-map (kbd "M-c r") 'projectile-replace)
 
 ;; swift-mode
 (use-package flycheck-swift
@@ -130,9 +135,6 @@
 (use-package company-ghc)
 (add-to-list 'company-backends 'company-ghc)
 (custom-set-variables '(company-ghc-show-info t))
-
-;; Javascript
-(use-package js2-mode)
 
 ;; Kotlin
 (use-package kotlin-mode)
