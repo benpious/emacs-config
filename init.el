@@ -15,7 +15,8 @@
 (define-key key-translation-map [?\C-h] [?\C-?])
 (global-set-key (kbd "M-h") 'backward-kill-word)
 
-(global-set-key (kbd "C-o") 'other-window)
+(global-set-key (kbd "C-u") 'other-window)
+(global-set-key (kbd "C-o") 'universal-argument)
 
 (setq tab-width 2)
 
@@ -55,6 +56,10 @@
 ;; Autocompletion
 (use-package company)
 (add-hook 'after-init-hook 'global-company-mode)
+(setq company-idle-delay 0.1)
+(define-key company-active-map (kbd "C-n") #'company-select-next)
+(define-key company-active-map (kbd "C-p") #'company-select-previous)
+
 
 ;; Rust (https://github.com/racer-rust/emacs-racer)
 (setq racer-rust-src-path "/Users/benpious/.multirust/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src/")
@@ -73,12 +78,14 @@
 	     :ensure t
 	     :init (global-flycheck-mode))
 (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+(set-face-attribute 'flycheck-error nil :foreground "red" :background "#3d0615")
 
 ;; Delete trailing whitespace
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; python
 (setq company-global-modes '(not python-mode))
+(add-hook 'python-mode-hook (lambda() (company-mode 0)))
 (use-package elpy)
 (elpy-enable)
 (add-hook 'python-mode-hook 'jedi:setup)
@@ -101,3 +108,35 @@
 		       "~/.emacs.d/site-lisp/magit/Documentation")
 	  )
   )
+
+;; haskell-mode
+(use-package haskell-mode)
+(use-package intero)
+(add-hook 'haskell-mode-hook 'intero-mode)
+;; (let ((my-cabal-path (expand-file-name "~/.cabal/bin")))
+;;   (setenv "PATH" (concat my-cabal-path path-separator (getenv "PATH")))
+;;   (add-to-list 'exec-path my-cabal-path))
+;; (custom-set-variables '(haskell-process-type 'cabal-repl))
+;; (use-package ghc)
+;; (add-to-list 'load-path (expand-file-name "~/.cabal/share/x86_64-osx-ghc-8.0.2/ghc-mod-5.8.0.0"))
+;; (autoload 'ghc-init "ghc" nil t)
+;; (autoload 'ghc-debug "ghc" nil t)
+;; (add-hook 'haskell-mode-hook (lambda () (ghc-init)))
+;; (use-package flycheck-haskell)
+
+(eval-after-load 'flycheck
+  '(add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))
+
+(use-package company-ghc)
+(add-to-list 'company-backends 'company-ghc)
+(custom-set-variables '(company-ghc-show-info t))
+
+;; Javascript
+(use-package js2-mode)
+
+;; Kotlin
+(use-package kotlin-mode)
+(setq kotlin-tab-width 4)
+
+(setq tab-width 4)
+(setq-default indent-tabs-mode nil)
