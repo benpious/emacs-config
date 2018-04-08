@@ -15,7 +15,6 @@
 (define-key key-translation-map [?\C-h] [?\C-?])
 (global-set-key (kbd "M-h") 'backward-kill-word)
 
-(global-set-key (kbd "C-u") 'other-window)
 (global-set-key (kbd "C-o") 'universal-argument)
 
 (setq tab-width 2)

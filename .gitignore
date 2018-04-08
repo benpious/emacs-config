@@ -8,3 +8,8 @@ projectile-bookmarks.eld
 projectile.cache
 auto-save-list
 backups
+\#*
+.python-environments
+elpa
+ac-comphist.dat
+.DS_STORE
