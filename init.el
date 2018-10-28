@@ -104,7 +104,9 @@
   (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))
   (use-package lsp-ui
     :config
-    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+    (set-face-attribute 'lsp-ui-doc-background nil :background "#222123")
+    )
   )
 (use-package lsp-rust
   :after lsp-mode)
