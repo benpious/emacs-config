@@ -11,6 +11,8 @@
 ;; remove menu
 (menu-bar-mode -1)
 
+(use-package use-package-ensure-system-package :ensure t)
+
 ;; Control-H to delete
 (define-key key-translation-map [?\C-h] [?\C-?])
 (global-set-key (kbd "M-h") 'backward-kill-word)
@@ -30,54 +32,98 @@
 
 ;; Theming
 
-(set-face-attribute 'fringe nil :background "#90b2b2")
-(set-face-attribute 'font-lock-comment-face nil :foreground "#b6d1db")
-(set-face-attribute 'font-lock-string-face nil :foreground "#edea44")
-(set-face-attribute 'font-lock-constant-face nil :foreground "#c5ed36")
-(set-face-attribute 'font-lock-builtin-face nil :foreground "#b6d1db")
-(set-face-attribute 'font-lock-function-name-face nil :foreground "#67e6ea")
-(set-face-attribute 'font-lock-keyword-face nil :foreground "#e8d186")
-(set-face-attribute 'font-lock-type-face nil :foreground "#edc544")
-(set-face-attribute 'default nil :background "#171919")
-(set-face-attribute 'region nil :background "#2db3d8")
+(defconst primary "#a475c4")
+(defconst secondary "#fa79fc")
+(defconst tertiary "#b7beff")
+(defconst quaternary "#ffb7f3")
+(defconst accentPrimary "#c9ebff")
+(defconst comment "#c09da7")
+(defconst accentSecondary "#ef5696")
+(defconst accentTertiary "#4a148c")
+(defconst bg "#000000")
+(defconst white "#ffffff")
 
 (require 'color)
-(let ((bg (face-attribute 'default :background)))
-  (custom-set-faces
-   `(company-tooltip ((t (:inherit default :background, (color-lighten-name bg 2)))))
-   `(company-scrollbar-bg ((t (:background, (color-lighten-name bg 10)))))
-	 `(company-scrollbar-fg ((t (:background, (color-lighten-name bg 5)))))
-   `(company-tooltip-selection ((t (:inherit font-lock-function-name-face))))
-   `(company-tooltip-common ((t (:inherit font-lock-constant-face))))
-   )
-  )
+
+(set-face-attribute 'font-lock-variable-name-face nil :foreground primary)
+(set-face-attribute 'fringe nil :foreground "#d500f9")
+(set-face-attribute 'font-lock-comment-face nil :foreground comment)
+(set-face-attribute 'font-lock-string-face nil :foreground accentSecondary)
+(set-face-attribute 'font-lock-constant-face nil :foreground tertiary)
+(set-face-attribute 'font-lock-builtin-face nil :foreground primary)
+(set-face-attribute 'font-lock-function-name-face nil :foreground accentPrimary)
+(set-face-attribute 'font-lock-keyword-face nil :foreground secondary)
+(set-face-attribute 'font-lock-type-face nil :foreground quaternary)
+(set-face-attribute 'default nil :background bg)
+(set-face-attribute 'region nil :background accentTertiary)
+(set-face-attribute 'font-lock-preprocessor-face nil :foreground primary)
 
 ;; Autocompletion
-(use-package company)
-(add-hook 'after-init-hook 'global-company-mode)
-(setq company-idle-delay 0.1)
-(define-key company-active-map (kbd "C-n") #'company-select-next)
-(define-key company-active-map (kbd "C-p") #'company-select-previous)
 
+(use-package company
+  :hook
+  ((company-mode . (lambda ()
+                     (setq company-idle-delay 0.1)
+                     (global-set-key (kbd "TAB") #'company-indent-or-complete-common)
+                     (define-key company-active-map (kbd "C-n") #'company-select-next)
+                     (define-key company-active-map (kbd "C-p") #'company-select-previous)
+                     (custom-set-faces
+                      `(company-preview ((t (:background ,accentPrimary :foreground ,primary))))
+                      `(company-scrollbar-bg ((t (:background ,accentTertiary))))
+                      `(company-scrollbar-fg ((t (:background "#ba68c8"))))
+                      `(company-tooltip ((t (:background ,accentTertiary, :foreground ,white))))
+                      `(company-tooltip-common ((t (:foreground ,white))))
+                      `(company-tooltip-selection ((t (:foreground ,accentPrimary :background ,primary))))
+                      )
+                     )))
+  :config
+  (add-hook 'emacs-lisp-mode-hook 'company-mode)
+  )
 
 ;; Rust (https://github.com/racer-rust/emacs-racer)
-(setq racer-rust-src-path "/Users/benpious/.multirust/toolchains/stable-x86_64-apple-darwin/lib/rustlib/src/rust/src/")
-(add-hook 'rust-mode-hook #'racer-mode)
-(add-hook 'racer-mode-hook #'eldoc-mode)
-(add-hook 'racer-mode-hook #'company-mode)
-(use-package rust-mode)
-(define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common)
+(use-package rust-mode
+  :config
+  (define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common)
+  :hook ((rust-mode . (lambda ()
+                        (lsp-rust-enable)
+                        (lsp-ui-mode)
+                        (lsp-ui-sideline-mode)
+                        (lsp-ui-doc-mode)
+                        (eldoc-mode -1)
+                        (flycheck-mode)
+                        (company-mode)
+                        )))
+  :ensure-system-package
+  ((racer . "cargo install racer")
+   (rls . "rustup component add rls-preview rust-analysis rust-src"))
+  )
 (setq company-tooltip-align-annotations t)
+
+(use-package lsp-mode
+  :config
+  (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))
+  (use-package lsp-ui
+    :config
+    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+  )
+(use-package lsp-rust
+  :after lsp-mode)
+
+(use-package company-lsp
+  :config
+  (push 'company-lsp company-backends)
+  )
 
 (put 'erase-buffer 'disabled nil)
 
 ;; Flycheck
 
 (use-package flycheck
-	     :ensure t
-	     :init (global-flycheck-mode))
-(add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
-(set-face-attribute 'flycheck-error nil :foreground "red" :background "#3d0615")
+  :ensure t
+  :config
+  (set-face-attribute 'flycheck-warning nil :foreground "#ffd180")
+  (set-face-attribute 'flycheck-error nil :foreground "dd2c00")
+  )
 
 ;; Delete trailing whitespace
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
@@ -133,11 +179,15 @@
 
 (use-package company-ghc)
 (add-to-list 'company-backends 'company-ghc)
-(custom-set-variables '(company-ghc-show-info t))
-
-;; Kotlin
-(use-package kotlin-mode)
-(setq kotlin-tab-width 4)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(company-ghc-show-info t)
+ '(package-selected-packages
+   (quote
+    (flycheck rust-mode company lsp-rust use-package swift-mode rjsx-mode racer projectile multiple-cursors magit lsp-mode kotlin-mode jedi intero glsl-mode flycheck-swift flycheck-rust flycheck-haskell elpy diff-hl company-ghc alchemist))))
 
 (setq tab-width 4)
 (setq-default indent-tabs-mode nil)
