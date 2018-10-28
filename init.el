@@ -36,7 +36,7 @@
 (defconst secondary "#fa79fc")
 (defconst tertiary "#b7beff")
 (defconst quaternary "#ffb7f3")
-(defconst accentPrimary "#c9ebff")
+(defconst accentPrimary "#a3dcff")
 (defconst comment "#c09da7")
 (defconst accentSecondary "#ef5696")
 (defconst accentTertiary "#4a148c")
