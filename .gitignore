@@ -13,3 +13,4 @@ backups
 elpa
 ac-comphist.dat
 .DS_STORE
+.cache

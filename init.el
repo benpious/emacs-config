@@ -13,11 +13,20 @@
 
 (use-package use-package-ensure-system-package :ensure t)
 
+(defun comment-one-line ()
+    (comment-line 1))
+
 ;; Control-H to delete
 (define-key key-translation-map [?\C-h] [?\C-?])
 (global-set-key (kbd "M-h") 'backward-kill-word)
+(global-set-key (kbd "C-/") 'comment-one-line)
 
-(global-set-key (kbd "C-o") 'universal-argument)
+(global-set-key (kbd "C-o") 'other-window)
+
+(defun open-init-file ()
+  (interactive)
+  (find-file (expand-file-name "~/.emacs.d/init.el"))
+  )
 
 (setq tab-width 2)
 
@@ -56,6 +65,7 @@
 (set-face-attribute 'font-lock-type-face nil :foreground quaternary)
 (set-face-attribute 'default nil :background bg)
 (set-face-attribute 'region nil :background accentTertiary)
+(set-face-attribute 'highlight nil :background accentTertiary)
 (set-face-attribute 'font-lock-preprocessor-face nil :foreground primary)
 
 ;; Autocompletion
@@ -82,16 +92,19 @@
 
 ;; Rust (https://github.com/racer-rust/emacs-racer)
 (use-package rust-mode
+  :after lsp-ui
   :config
   (define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common)
   :hook ((rust-mode . (lambda ()
+                        (flycheck-mode)
+                        (lsp-ui-flycheck-enable t)
+                        (lsp-ui-sideline--flycheck)
                         (lsp-rust-enable)
                         (lsp-ui-mode)
                         (lsp-ui-sideline-mode)
                         (lsp-ui-doc-mode)
-                        (eldoc-mode -1)
-                        (flycheck-mode)
                         (company-mode)
+                        (electric-pair-mode)
                         )))
   :ensure-system-package
   ((racer . "cargo install racer")
@@ -124,7 +137,7 @@
   :ensure t
   :config
   (set-face-attribute 'flycheck-warning nil :foreground "#ffd180")
-  (set-face-attribute 'flycheck-error nil :foreground "dd2c00")
+  (set-face-attribute 'flycheck-error nil :foreground "#dd2c00")
   )
 
 ;; Delete trailing whitespace
@@ -147,6 +160,16 @@
 (define-key projectile-mode-map (kbd "C-c f") 'projectile-grep)
 (define-key projectile-mode-map (kbd "C-c r") 'projectile-replace)
 (define-key projectile-mode-map (kbd "M-c r") 'projectile-replace)
+
+(use-package treemacs
+  :config
+  `(treemacs-help-title-face ((t (:foreground ,accentPrimary :background ,primary))))
+  )
+
+(use-package treemacs-projectile
+  :after treemacs projectile
+  :ensure t
+  )
 
 ;; swift-mode
 (use-package flycheck-swift
@@ -189,7 +212,18 @@
  '(company-ghc-show-info t)
  '(package-selected-packages
    (quote
-    (flycheck rust-mode company lsp-rust use-package swift-mode rjsx-mode racer projectile multiple-cursors magit lsp-mode kotlin-mode jedi intero glsl-mode flycheck-swift flycheck-rust flycheck-haskell elpy diff-hl company-ghc alchemist))))
+    (lsp-ui treemacs-projectile treemacs flycheck rust-mode company lsp-rust use-package swift-mode rjsx-mode racer projectile multiple-cursors magit lsp-mode kotlin-mode jedi intero glsl-mode flycheck-swift flycheck-rust flycheck-haskell elpy diff-hl company-ghc alchemist))))
 
 (setq tab-width 4)
 (setq-default indent-tabs-mode nil)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(company-preview ((t (:background "#a3dcff" :foreground "#a475c4"))))
+ '(company-scrollbar-bg ((t (:background "#4a148c"))))
+ '(company-scrollbar-fg ((t (:background "#ba68c8"))))
+ '(company-tooltip ((t (:background "#4a148c" :foreground "#ffffff"))))
+ '(company-tooltip-common ((t (:foreground "#ffffff"))))
+ '(company-tooltip-selection ((t (:foreground "#a3dcff" :background "#a475c4")))))
