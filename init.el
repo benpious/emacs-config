@@ -23,7 +23,7 @@
 
 (global-set-key (kbd "C-o") 'other-window)
 
-(defun open-init-file ()
+(defun init-file ()
   (interactive)
   (find-file (expand-file-name "~/.emacs.d/init.el"))
   )
@@ -90,21 +90,24 @@
   (add-hook 'emacs-lisp-mode-hook 'company-mode)
   )
 
+(use-package dap-mode
+  :hook (require dap-lldb))
+
 ;; Rust (https://github.com/racer-rust/emacs-racer)
 (use-package rust-mode
-  :after lsp-ui
+  :after lsp-mode lsp-ui dap-mode lsp-rust flycheck
   :config
   (define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common)
   :hook ((rust-mode . (lambda ()
                         (flycheck-mode)
-                        (lsp-ui-flycheck-enable t)
-                        (lsp-ui-sideline--flycheck)
-                        (lsp-rust-enable)
+                        (lsp)
                         (lsp-ui-mode)
-                        (lsp-ui-sideline-mode)
                         (lsp-ui-doc-mode)
                         (company-mode)
                         (electric-pair-mode)
+                        (flycheck-inline-mode)
+                        (dap-mode)
+                        (dap-ui-mode 1)
                         )))
   :ensure-system-package
   ((racer . "cargo install racer")
@@ -113,18 +116,22 @@
 (setq company-tooltip-align-annotations t)
 
 (use-package lsp-mode
-  :config
-  (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))
-  (use-package lsp-ui
-    :config
-    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-    (set-face-attribute 'lsp-ui-doc-background nil :background "#222123")
-    )
+  :ensure t
   )
+
+(use-package lsp-ui
+  :after lsp-mode
+  :config
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  (set-face-attribute 'lsp-ui-doc-background nil :background "#222123")
+  )
+
 (use-package lsp-rust
+  :load-path "~/Documents/lsp-rust/"
   :after lsp-mode)
 
 (use-package company-lsp
+  :after lsp-mode company-mode
   :config
   (push 'company-lsp company-backends)
   )
@@ -132,6 +139,9 @@
 (put 'erase-buffer 'disabled nil)
 
 ;; Flycheck
+
+(use-package flycheck-inline
+  :after flycheck)
 
 (use-package flycheck
   :ensure t
@@ -184,36 +194,6 @@
 	  )
   )
 
-;; haskell-mode
-(use-package haskell-mode)
-(use-package intero)
-(add-hook 'haskell-mode-hook 'intero-mode)
-;; (let ((my-cabal-path (expand-file-name "~/.cabal/bin")))
-;;   (setenv "PATH" (concat my-cabal-path path-separator (getenv "PATH")))
-;;   (add-to-list 'exec-path my-cabal-path))
-;; (custom-set-variables '(haskell-process-type 'cabal-repl))
-;; (use-package ghc)
-;; (add-to-list 'load-path (expand-file-name "~/.cabal/share/x86_64-osx-ghc-8.0.2/ghc-mod-5.8.0.0"))
-;; (autoload 'ghc-init "ghc" nil t)
-;; (autoload 'ghc-debug "ghc" nil t)
-;; (add-hook 'haskell-mode-hook (lambda () (ghc-init)))
-;; (use-package flycheck-haskell)
-
-(eval-after-load 'flycheck
-  '(add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))
-
-(use-package company-ghc)
-(add-to-list 'company-backends 'company-ghc)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(company-ghc-show-info t)
- '(package-selected-packages
-   (quote
-    (lsp-ui treemacs-projectile treemacs flycheck rust-mode company lsp-rust use-package swift-mode rjsx-mode racer projectile multiple-cursors magit lsp-mode kotlin-mode jedi intero glsl-mode flycheck-swift flycheck-rust flycheck-haskell elpy diff-hl company-ghc alchemist))))
-
 (setq tab-width 4)
 (setq-default indent-tabs-mode nil)
 (custom-set-faces
@@ -227,3 +207,11 @@
  '(company-tooltip ((t (:background "#4a148c" :foreground "#ffffff"))))
  '(company-tooltip-common ((t (:foreground "#ffffff"))))
  '(company-tooltip-selection ((t (:foreground "#a3dcff" :background "#a475c4")))))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (lsp-mode use-package-ensure-system-package treemacs-projectile rust-mode magit lsp-ui intero flycheck-swift flycheck-inline elpy dap-mode company-lsp company-ghc))))
