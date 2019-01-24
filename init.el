@@ -28,8 +28,6 @@
   (find-file (expand-file-name "~/.emacs.d/init.el"))
   )
 
-(setq tab-width 2)
-
 ;; Paren mode
 (show-paren-mode 1)
 
@@ -79,59 +77,49 @@
                      (define-key company-active-map (kbd "C-p") #'company-select-previous)
                      (custom-set-faces
                       `(company-preview ((t (:background ,accentPrimary :foreground ,primary))))
+                      `(company-preview-common ((t (:foreground ,accentTertiary))))
                       `(company-scrollbar-bg ((t (:background ,accentTertiary))))
                       `(company-scrollbar-fg ((t (:background "#ba68c8"))))
                       `(company-tooltip ((t (:background ,accentTertiary, :foreground ,white))))
                       `(company-tooltip-common ((t (:foreground ,white))))
                       `(company-tooltip-selection ((t (:foreground ,accentPrimary :background ,primary))))
+                      `(company-tooltip-annotation ((t (:foreground ,primary))))
                       )
+                     (setq company-require-match nil)
                      )))
   :config
   (add-hook 'emacs-lisp-mode-hook 'company-mode)
+  (setq company-tooltip-align-annotations t)
   )
 
-(use-package dap-mode
-  :hook (require dap-lldb))
+;(use-package dap-mode
+;  :hook (require dap-lldb))
 
-;; Rust (https://github.com/racer-rust/emacs-racer)
 (use-package rust-mode
-  :after lsp-mode lsp-ui dap-mode lsp-rust flycheck
-  :config
-  (define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common)
-  :hook ((rust-mode . (lambda ()
-                        (flycheck-mode)
-                        (lsp)
-                        (lsp-ui-mode)
-                        (lsp-ui-doc-mode)
-                        (company-mode)
-                        (electric-pair-mode)
-                        (flycheck-inline-mode)
-                        (dap-mode)
-                        (dap-ui-mode 1)
-                        )))
+  :after lsp-mode lsp-ui flycheck
+  :hook
+  (lsp)
+  (electric-pair-mode)
   :ensure-system-package
   ((racer . "cargo install racer")
    (rls . "rustup component add rls-preview rust-analysis rust-src"))
   )
-(setq company-tooltip-align-annotations t)
 
 (use-package lsp-mode
-  :ensure t
+  :commands lsp
   )
 
 (use-package lsp-ui
+  :commands lsp-ui
   :after lsp-mode
   :config
   (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   (set-face-attribute 'lsp-ui-doc-background nil :background "#222123")
   )
 
-(use-package lsp-rust
-  :load-path "~/Documents/lsp-rust/"
-  :after lsp-mode)
-
 (use-package company-lsp
   :after lsp-mode company-mode
+  :commands company-lsp
   :config
   (push 'company-lsp company-backends)
   )
@@ -180,10 +168,6 @@
   :after treemacs projectile
   :ensure t
   )
-
-;; swift-mode
-(use-package flycheck-swift
-  :init '(flycheck-swift-setup))
 
 (use-package magit
   :init (progn
