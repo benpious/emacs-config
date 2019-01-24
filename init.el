@@ -114,8 +114,8 @@
   :commands lsp-ui
   :after lsp-mode
   :config
-  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
   (set-face-attribute 'lsp-ui-doc-background nil :background "#222123")
+  (setq lsp-ui-flycheck-enable t)
   )
 
 (use-package company-lsp
@@ -130,9 +130,19 @@
 ;; Flycheck
 
 (use-package flycheck-inline
-  :after flycheck)
+  :after flycheck
+  :config
+  (setq flycheck-inline-display-function
+        (lambda (msg pos)
+          (let* ((ov (quick-peek-overlay-ensure-at pos))
+                 (contents (quick-peek-overlay-contents ov)))
+            (setf (quick-peek-overlay-contents ov)
+                  (concat contents (when contents "\n") msg))
+            (quick-peek-update ov)))
+        flycheck-inline-clear-function #'quick-peek-hide))
 
 (use-package flycheck
+  :commands flycheck
   :config
   (set-face-attribute 'flycheck-warning nil :foreground "#ffd180")
   (set-face-attribute 'flycheck-error nil :foreground "#dd2c00")
@@ -171,6 +181,10 @@
   :ensure t
   )
 
+(use-package powerline
+  :config
+  (powerline-default-theme))
+
 (use-package magit
   :init (progn
 	  (global-set-key (kbd "C-x g") 'magit-status)
@@ -202,4 +216,4 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (lsp-mode use-package-ensure-system-package treemacs-projectile magit lsp-ui intero flycheck-swift flycheck-inline elpy dap-mode company-lsp company-ghc))))
+    (flycheck lsp-mode use-package-ensure-system-package treemacs-projectile magit lsp-ui intero flycheck-swift flycheck-inline elpy dap-mode company-lsp company-ghc))))
