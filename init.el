@@ -66,6 +66,17 @@
 (set-face-attribute 'highlight nil :background accentTertiary)
 (set-face-attribute 'font-lock-preprocessor-face nil :foreground primary)
 
+
+;; not sure why use-package isn't calling rust-mode's hook
+(defun on-start-rust ()
+  (dap-mode)
+  (dap-ui-mode 1)
+  (lsp)
+  (electric-pair-mode)
+  )
+
+(add-hook 'rust-mode-hook 'on-start-rust)
+
 ;; Autocompletion
 
 (use-package company
@@ -92,18 +103,8 @@
   (setq company-tooltip-align-annotations t)
   )
 
-;(use-package dap-mode
-;  :hook (require dap-lldb))
-
-(use-package rust-mode
-  :after lsp-mode lsp-ui flycheck
-  :hook
-  (lsp)
-  (electric-pair-mode)
-  :ensure-system-package
-  ((racer . "cargo install racer")
-   (rls . "rustup component add rls-preview rust-analysis rust-src"))
-  )
+(use-package dap-mode
+  :hook (require dap-lldb))
 
 (use-package lsp-mode
   :commands lsp
@@ -132,7 +133,6 @@
   :after flycheck)
 
 (use-package flycheck
-  :ensure t
   :config
   (set-face-attribute 'flycheck-warning nil :foreground "#ffd180")
   (set-face-attribute 'flycheck-error nil :foreground "#dd2c00")
@@ -151,13 +151,15 @@
 
 ;; projects
 ;; https://github.com/bbatsov/projectile (http://projectile.readthedocs.io/en/latest/)
-(use-package projectile)
-(projectile-mode)
-(define-key projectile-mode-map (kbd "C-c d") 'projectile-find-dir)
-(define-key projectile-mode-map (kbd "C-c o") 'projectile-find-file)
-(define-key projectile-mode-map (kbd "C-c f") 'projectile-grep)
-(define-key projectile-mode-map (kbd "C-c r") 'projectile-replace)
-(define-key projectile-mode-map (kbd "M-c r") 'projectile-replace)
+(use-package projectile
+  :config
+  (projectile-mode)
+  (define-key projectile-mode-map (kbd "C-c d") 'projectile-find-dir)
+  (define-key projectile-mode-map (kbd "C-c o") 'projectile-find-file)
+  (define-key projectile-mode-map (kbd "C-c f") 'projectile-grep)
+  (define-key projectile-mode-map (kbd "C-c r") 'projectile-replace)
+  (define-key projectile-mode-map (kbd "M-c r") 'projectile-replace)
+  )
 
 (use-package treemacs
   :config
@@ -186,9 +188,11 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(company-preview ((t (:background "#a3dcff" :foreground "#a475c4"))))
+ '(company-preview-common ((t (:foreground "#4a148c"))))
  '(company-scrollbar-bg ((t (:background "#4a148c"))))
  '(company-scrollbar-fg ((t (:background "#ba68c8"))))
  '(company-tooltip ((t (:background "#4a148c" :foreground "#ffffff"))))
+ '(company-tooltip-annotation ((t (:foreground "#a475c4"))))
  '(company-tooltip-common ((t (:foreground "#ffffff"))))
  '(company-tooltip-selection ((t (:foreground "#a3dcff" :background "#a475c4")))))
 (custom-set-variables
@@ -198,4 +202,4 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (lsp-mode use-package-ensure-system-package treemacs-projectile rust-mode magit lsp-ui intero flycheck-swift flycheck-inline elpy dap-mode company-lsp company-ghc))))
+    (lsp-mode use-package-ensure-system-package treemacs-projectile magit lsp-ui intero flycheck-swift flycheck-inline elpy dap-mode company-lsp company-ghc))))
