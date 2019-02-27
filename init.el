@@ -67,12 +67,18 @@
 (set-face-attribute 'font-lock-preprocessor-face nil :foreground primary)
 
 
+(require 'lsp-ui-flycheck)
+
 ;; not sure why use-package isn't calling rust-mode's hook
 (defun on-start-rust ()
-  (dap-mode)
-  (dap-ui-mode 1)
+;  (dap-mode)
+;  (dap-ui-mode 1)
   (lsp)
   (electric-pair-mode)
+  (setq lsp-ui-flycheck-enable t)
+  (flycheck-mode)
+  (lsp-ui-sideline-show-flycheck t)
+  (flycheck-inline-mode)
   )
 
 (add-hook 'rust-mode-hook 'on-start-rust)
@@ -115,7 +121,6 @@
   :after lsp-mode
   :config
   (set-face-attribute 'lsp-ui-doc-background nil :background "#222123")
-  (setq lsp-ui-flycheck-enable t)
   )
 
 (use-package company-lsp
@@ -216,4 +221,4 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (flycheck lsp-mode use-package-ensure-system-package treemacs-projectile magit lsp-ui intero flycheck-swift flycheck-inline elpy dap-mode company-lsp company-ghc))))
+    (projectile rust-mode company flycheck lsp-mode use-package-ensure-system-package treemacs-projectile magit lsp-ui intero flycheck-swift flycheck-inline elpy dap-mode company-lsp company-ghc))))
